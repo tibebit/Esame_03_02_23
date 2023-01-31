@@ -1,15 +1,20 @@
 class ExamException(Exception):
   pass
-#Lo scopo di questa classe e'raggruppare le temperature che appartengono alla stessa giornata
+
+  
+#raggruppa le temperature che appartengono alla stessa giornata
 class Day:
   def __init__(self, temperatures):
     self.temperatures = temperatures
+    
+  # calcola l'escursione termica della giornata
   def compute_excursion(self):
     if len(self.temperatures) == 1:
       return None
     self.temperatures.sort()
     return self.temperatures[-1] - self.temperatures[0]
 
+    
 #lettore generico di CSV files
 class CSVFile:
   def __init__(self, name=""):
@@ -36,7 +41,8 @@ class CSVFile:
     my_file.close()
     return elements
 
-#lettore specifico per l'esercizio
+    
+#lettore di CSV files specifico per l'esame
 class CSVTimeSeriesFile(CSVFile):
 
   def get_data(self):
@@ -60,7 +66,7 @@ class CSVTimeSeriesFile(CSVFile):
               temp = float(column)
               new_row.append(int(temp))
             except:
-              #la data non ha un formato accettabile, quindi interrompo il ciclo e segnalo che la riga non verra'aggiunta all'elenco
+              #la data non ha un formato accettabile, scarto l'intera riga
               add_new_row = False
               break
         else:
@@ -70,8 +76,9 @@ class CSVTimeSeriesFile(CSVFile):
             #ho trovato il secondo valore della coppia, ne ignoro eventuali altri
             break
           except:
+            #il dato non e' accettabile
             add_new_row = False
-            #non e'detto che le colonne siano finite, perciò continuo il ciclo
+            #ma non e'detto che le colonne siano finite, perciò continuo il ciclo
             continue
       if add_new_row is True:
         parsed_values.append(new_row)
@@ -87,7 +94,6 @@ class CSVTimeSeriesFile(CSVFile):
       
     self.verify_time_series_order(dates)
     self.spot_duplicates(dates)
-    
 
   def verify_time_series_order(self, dates):
     if dates != sorted(dates):
@@ -100,6 +106,7 @@ class CSVTimeSeriesFile(CSVFile):
         previous = date
       else:
         raise ExamException('Errore: il dataset contiene dei duplicati!')
+
       
 
 def compute_daily_max_difference(time_series):
@@ -112,12 +119,14 @@ def compute_daily_max_difference(time_series):
 
   return differences
 
+
+
 def split_days_in(time_series):
     #contiene una lista di giorni
     splitted_days = []
     #tiene traccia della giornata corrente
     current_epoch = None
-    #accumulatore di temperature dello stesso giorno
+    #contiene le temperature dello stesso giorno
     temperatures = []
   
     for element in time_series:
@@ -128,7 +137,7 @@ def split_days_in(time_series):
           #e'cambiato giorno
           if current_epoch is not None:
             #Non devo piu'aggiungere temperature per questo giorno
-            #quindi salvo le temperature della giornata
+            #quindi salvo le temperature della giornata precedente
             day = Day(temperatures)
             splitted_days.append(day) 
             
@@ -141,21 +150,8 @@ def split_days_in(time_series):
           temperatures += element[1:]
           
     if len(temperatures) != 0:
-      # ci sono temperature nell'accumulatore, aggiungile alla giornata
+      #ci sono temperature nell'accumulatore, aggiungile alla giornata
       day = Day(temperatures)
       splitted_days.append(day)
     
     return splitted_days
-
-#esecuzione
-    
-# time_series_file = CSVTimeSeriesFile(name='data.csv')
-# time_series = time_series_file.get_data()
-
-# for element in time_series:
-#   print(element)
-
-# lista = compute_daily_max_difference(time_series)
-# print("\nEscursioni Termiche:\n")
-# for element in lista:
-#   print(element)
