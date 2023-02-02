@@ -56,7 +56,11 @@ class CSVTimeSeriesFile(CSVFile):
   def sanitize_data(self, elements):
     parsed_values = []
 
-    for element in elements:
+    for element in elements:       
+      #scarto righe con una sola colonna
+      if len(element) < 2:
+        continue
+      
       add_new_row = True
       new_row = []
 
@@ -145,12 +149,15 @@ def sanitize_time_series(time_series):
       continue
     if len(row) == 0:
       continue
-    if type(row[0]) != int:
+    try:
+      if type(row[0]) != int:
+        continue
+      if type(row[1]) != float:
+        continue
+      else:
+        new_time_series.append(row)
+    except:
       continue
-    if type(row[1]) != float:
-      continue
-    else:
-      new_time_series.append(row)
 
   if len(new_time_series) == 0:
     raise ExamException('Errore: lista dati vuota')
@@ -158,7 +165,7 @@ def sanitize_time_series(time_series):
   return new_time_series
 
 
-
+#divide i timestamps della stessa giornata
 def split_days_in(time_series):
   #contiene una lista di giorni
   splitted_days = []

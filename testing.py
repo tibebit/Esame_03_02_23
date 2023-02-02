@@ -6,6 +6,15 @@ class TestingEsame(unittest.TestCase):
 
 
 #GET_DATA_TESTS------------------------------------------------------------------------- 
+  def test_get_data_trashes_one_column_only(self):
+    expected_output = [[2341243243224, 34.0], [2341243243335, 24.0]]
+    try:
+      time_series_file = CSVTimeSeriesFile('wrong_dataset.csv')
+      results = time_series_file.get_data()
+      self.assertEqual(expected_output, results)
+    except:
+      self.fail('Errore, si e\'alzata un\'eccezione')
+      
   def test_get_data_reads_exactly_these_data(self):
     expected_output = [[1551402000, 21.40], [1551405600, 21.30], [1551409200, 21.34], [1551412800, 21.20], [1551416400, 21.21], [1551420000, 22.40], [1551423600, 22.25], [1551427200, 22.15], [1551430800, 21.92], [1551434400, 21.84], [1551438000, 22.09], [1551441600, 23.05], [1551445200, 22.63], [1551448800, 22.43], [1551452400, 22.12],]
     time_series_file = CSVTimeSeriesFile('testing_dataset.csv')
@@ -115,10 +124,18 @@ class TestingEsame(unittest.TestCase):
     except:
       pass
 
-  def test_compute_daily_ma_difference_raises_on_list_full_of_Nones(self):
+  def test_compute_daily_max_difference_raises_on_list_full_of_Nones(self):
     list_full_of_nones = [None, None, None]
     try:
       compute_daily_max_difference(list_full_of_nones)
       self.fail('Eccezione non sollevata')
+    except:
+      pass
+
+  def test_compute_daily_max_difference_leaves_the_list_empty(self):
+    test_input = [[11111114]]
+    try:
+      compute_daily_max_difference(test_input)
+      self.fail('Doveva essere sollevata una eccezione')
     except:
       pass
